@@ -35,7 +35,10 @@ public class RPCClient{
     public RPCResponseMessage remoteInvoke(String interfaceName, Method method,Object[] args) throws Exception{
         String uuid = rpcRealClient.remoteInvoke(interfaceName, method, args);
         RPCRecord record = resultMap.get(uuid);
-        record.getReady().wait();
+        Object ready = record.getReady();
+        synchronized (ready) {
+            ready.wait();
+        }
         RPCResponseMessage responseMessage = record.getRpcResponseMessage();
         resultMap.remove(uuid);
         return responseMessage;
@@ -48,7 +51,6 @@ class RPCRealClient implements Runnable{
     private RPCEncoder rpcEncoder;
     private RPCDecoder rpcDecoder;
     private RPCClientHandler rpcClientHandler;
-    private ConcurrentHashMap<String,RPCRecord> resultMap;
     private Object ready;
 
     public RPCRealClient(String host,int port,ConcurrentHashMap<String,RPCRecord> resultMap){
@@ -57,6 +59,7 @@ class RPCRealClient implements Runnable{
         rpcEncoder = new RPCEncoder(RPCRequestMessage.class);
         rpcDecoder = new RPCDecoder(RPCResponseMessage.class);
         rpcClientHandler = new RPCClientHandler(resultMap);
+        ready = new Object();
     }
 
     public void run() {
@@ -81,7 +84,9 @@ class RPCRealClient implements Runnable{
                         }
                     });
             ChannelFuture future = bootstrap.connect(host,port).sync();
-            ready.notify();
+            synchronized (ready) {
+                ready.notify();
+            }
             future.channel().closeFuture().sync();
         }finally {
             group.shutdownGracefully();
@@ -90,7 +95,9 @@ class RPCRealClient implements Runnable{
 
     public void waitReady(){
         try{
-            ready.wait();
+            synchronized (ready) {
+                ready.wait();
+            }
         }catch(InterruptedException e){
             System.out.println(e.getMessage());
         }

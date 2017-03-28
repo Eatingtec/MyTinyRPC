@@ -35,9 +35,6 @@ public class RPCClientManager {
         if("".equals(config.getName())){
             throw new RPCException("the name of interface can not be empty");
         }
-        if("".equals(config.getVersion())){
-            throw new RPCException("the version can not be null");
-        }
         if(config.getInterface() == null){
             throw new RPCException("the interface can not be null");
         }

@@ -11,6 +11,16 @@ public class RPCRequestMessage {
     private String methodName;
     private List<Object> parameters;
 
+    @Override
+    public String toString() {
+        return "RPCRequestMessage{" +
+                "id='" + id + '\'' +
+                ", interfaceName='" + interfaceName + '\'' +
+                ", methodName='" + methodName + '\'' +
+                ", parameters=" + parameters +
+                '}';
+    }
+
     public String getId() {
         return id;
     }

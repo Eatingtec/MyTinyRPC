@@ -27,12 +27,14 @@ public class RPCClientHandler extends ChannelInboundHandlerAdapter {
         if(ctx == null){
             return null;
         }
-
         RPCRequestMessage message = new RPCRequestMessage();
         message.setId(UUID.randomUUID().toString());
         message.setInterfaceName(interfaceName);
         message.setMethodName(method.getName());
-        List<Object> parameters = Arrays.asList(args);
+        List<Object> parameters = null;
+        if(args != null) {
+            parameters = Arrays.asList(args);
+        }
         message.setParameters(parameters);
         RPCRecord record = new RPCRecord();
         record.setId(message.getId());
@@ -58,7 +60,10 @@ public class RPCClientHandler extends ChannelInboundHandlerAdapter {
         record.setRpcResponseMessage(responseMessage);
         record.setId(requestId);
         record.setTime(new Date().getTime());
-        record.getReady().notify();
+        Object ready = record.getReady();
+        synchronized (ready) {
+            ready.notify();
+        }
     }
 
 

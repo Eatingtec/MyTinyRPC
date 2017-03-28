@@ -5,6 +5,7 @@ import common.RPCEncoder;
 import common.RPCRequestMessage;
 import common.RPCResponseMessage;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -12,6 +13,8 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.logging.LoggingHandler;
+
 /**
  * Created by Greeting on 2017/3/27.
  */
@@ -37,12 +40,14 @@ public class RPCServer{
     }
 
     private void bind() throws Exception{
-        EventLoopGroup group = new NioEventLoopGroup();
+        EventLoopGroup masterGroup = new NioEventLoopGroup();
+        EventLoopGroup workerGroup = new NioEventLoopGroup();
         try{
-            Bootstrap bootstrap = new Bootstrap();
-            bootstrap.group(group).channel(NioServerSocketChannel.class)
+            ServerBootstrap bootstrap = new ServerBootstrap();
+            bootstrap.group(masterGroup,workerGroup)
+                    .channel(NioServerSocketChannel.class)
                     .option(ChannelOption.SO_BACKLOG,100)
-                    .handler(new ChannelInitializer<SocketChannel>() {
+                    .childHandler(new ChannelInitializer<SocketChannel>() {
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             socketChannel.pipeline().addLast(rpcEncoder);
                             socketChannel.pipeline().addLast(rpcDecoder);
@@ -52,7 +57,8 @@ public class RPCServer{
             ChannelFuture future = bootstrap.bind(port).sync();
             future.channel().closeFuture().sync();
         }finally {
-            group.shutdownGracefully();
+            masterGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
         }
     }
 

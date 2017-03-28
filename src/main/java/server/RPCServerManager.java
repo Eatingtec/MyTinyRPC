@@ -32,10 +32,15 @@ public class RPCServerManager {
     private RPCServerManager(){
         serviceSlotMap = new HashMap<String, ServiceSlot>();
         rpcServer = new RPCServer(port,this);
+
+    }
+
+    public void start(){
         rpcServer.start();
     }
 
     public RPCResponseMessage invoke(RPCRequestMessage requestMessage){
+        System.out.println(requestMessage);
         String interfaceName = requestMessage.getInterfaceName();
         String methodName = requestMessage.getMethodName();
         List<Object> parameters = requestMessage.getParameters();
@@ -58,11 +63,17 @@ public class RPCServerManager {
             responseMessage.setExceptionInfo("interface "+interfaceName+" do not have method " + methodName + " in service");
             return responseMessage;
         }
-        Method method = methods.get(methodName);
+        Method method = methods.get(key);
         try {
-            Object result = method.invoke(serviceSlot.getObject(), parameters.toArray());
+            Object result = null;
+            if(parameters == null) {
+                result = method.invoke(serviceSlot.getObject());
+            }else{
+                result = method.invoke(serviceSlot.getObject(), parameters.toArray());
+            }
             responseMessage.setResult(result);
         }catch(Exception e){
+            System.out.println(e);
             responseMessage.setWrong(true);
             responseMessage.setExceptional(true);
             responseMessage.setExceptionInfo(e.getMessage());
@@ -108,9 +119,11 @@ public class RPCServerManager {
     private String getMethodKey(String methodName,List<Object> args){
         StringBuilder key = new StringBuilder(methodName);
         key.append("/");
-        for(Object arg : args){
-            key.append(arg.getClass().getName());
-            key.append("/");
+        if(args != null) {
+            for (Object arg : args) {
+                key.append(arg.getClass().getName());
+                key.append("/");
+            }
         }
         return key.toString();
     }

@@ -23,6 +23,7 @@ public class RPCServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+
         RPCRequestMessage requestMessage = (RPCRequestMessage)msg;
         RPCResponseMessage responseMessage = rpcServerManager.invoke(requestMessage);
         ctx.writeAndFlush(responseMessage);

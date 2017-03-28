@@ -19,7 +19,9 @@ public class RPCClientProxyHandler implements InvocationHandler{
     }
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+
         RPCResponseMessage responseMessage = rpcClient.remoteInvoke(interfaceName,method,args);
+        System.out.println(responseMessage);
         if(responseMessage.isWrong()){
             if(responseMessage.isExceptional()){
                 throw new RPCException(responseMessage.getExceptionInfo());

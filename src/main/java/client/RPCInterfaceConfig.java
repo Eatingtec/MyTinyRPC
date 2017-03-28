@@ -5,7 +5,6 @@ package client;
  */
 public class RPCInterfaceConfig {
     private String name;
-    private String version;
     private Class theInterface;
     public RPCInterfaceConfig setName(String name){
         this.name = name;
@@ -20,12 +19,5 @@ public class RPCInterfaceConfig {
     }
     public Class getInterface(){
         return this.theInterface;
-    }
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
     }
 }
