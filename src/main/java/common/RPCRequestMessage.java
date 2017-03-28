@@ -7,21 +7,9 @@ import java.util.List;
  */
 public class RPCRequestMessage {
     private String id;
-    private String version;
     private String interfaceName;
     private String methodName;
     private List<Object> parameters;
-
-    @Override
-    public String toString() {
-        return "RPCRequestMessage{" +
-                "id='" + id + '\'' +
-                ", version='" + version + '\'' +
-                ", interfaceName='" + interfaceName + '\'' +
-                ", methodName='" + methodName + '\'' +
-                ", parameters=" + parameters +
-                '}';
-    }
 
     public String getId() {
         return id;
@@ -29,14 +17,6 @@ public class RPCRequestMessage {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
     }
 
     public String getInterfaceName() {

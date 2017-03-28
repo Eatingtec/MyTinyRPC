@@ -18,16 +18,14 @@ public class RPCClientProxyHandler implements InvocationHandler{
 
     private RPCClient rpcClient;
     private String interfaceName;
-    private String version;
 
-    public RPCClientProxyHandler(RPCClient rpcClient,String interfaceName,String version){
+    public RPCClientProxyHandler(RPCClient rpcClient,String interfaceName){
         this.rpcClient = rpcClient;
         this.interfaceName = interfaceName;
-        this.version = version;
     }
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        RPCResponseMessage responseMessage = rpcClient.remoteInvoke(interfaceName,version,method,args);
+        RPCResponseMessage responseMessage = rpcClient.remoteInvoke(interfaceName,method,args);
         if(responseMessage.isWrong()){
             if(responseMessage.isExceptional()){
                 throw new RPCException(responseMessage.getExceptionInfo());

@@ -2,7 +2,6 @@ package client;
 
 import common.RPCRequestMessage;
 import common.RPCResponseMessage;
-import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
@@ -24,7 +23,7 @@ public class RPCClientHandler extends ChannelInboundHandlerAdapter {
         this.resultMap = resultMap;
     }
 
-    public String remoteInvoke(String interfaceName, String version, Method method, Object[] args){
+    public String remoteInvoke(String interfaceName, Method method, Object[] args){
 
         if(ctx == null){
             return null;
@@ -34,7 +33,6 @@ public class RPCClientHandler extends ChannelInboundHandlerAdapter {
         message.setId(UUID.randomUUID().toString());
         message.setInterfaceName(interfaceName);
         message.setMethodName(method.getName());
-        message.setVersion(version);
         List<Object> parameters = Arrays.asList(args);
         message.setParameters(parameters);
         RPCRecord record = new RPCRecord();

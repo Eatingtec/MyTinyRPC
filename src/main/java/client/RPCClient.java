@@ -12,12 +12,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -37,8 +32,8 @@ public class RPCClient{
     }
 
 
-    public RPCResponseMessage remoteInvoke(String interfaceName, String version, Method method,Object[] args) throws Exception{
-        String uuid = rpcRealClient.remoteInvoke(interfaceName, version, method, args);
+    public RPCResponseMessage remoteInvoke(String interfaceName, Method method,Object[] args) throws Exception{
+        String uuid = rpcRealClient.remoteInvoke(interfaceName, method, args);
         RPCRecord record = resultMap.get(uuid);
         record.getReady().wait();
         RPCResponseMessage responseMessage = record.getRpcResponseMessage();
@@ -101,7 +96,7 @@ class RPCRealClient implements Runnable{
         }
     }
 
-    public String remoteInvoke(String interfaceName, String version, Method method,Object[] args){
-        return this.rpcClientHandler.remoteInvoke(interfaceName, version, method, args);
+    public String remoteInvoke(String interfaceName, Method method,Object[] args){
+        return this.rpcClientHandler.remoteInvoke(interfaceName, method, args);
     }
 }

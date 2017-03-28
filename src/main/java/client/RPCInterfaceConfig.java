@@ -3,15 +3,15 @@ package client;
 /**
  * Created by Greeting on 2017/3/27.
  */
-public class RPCInterfaceConfigBuilder {
+public class RPCInterfaceConfig {
     private String name;
     private String version;
     private Class theInterface;
-    public RPCInterfaceConfigBuilder setName(String name){
+    public RPCInterfaceConfig setName(String name){
         this.name = name;
         return this;
     }
-    public RPCInterfaceConfigBuilder setInterface(Class it){
+    public RPCInterfaceConfig setInterface(Class it){
         this.theInterface = it;
         return this;
     }
