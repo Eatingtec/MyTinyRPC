@@ -1,6 +1,9 @@
 package client;
+import common.RPCException;
 import java.lang.reflect.Proxy;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Created by Greeting on 2017/3/27.
  */
@@ -21,23 +24,25 @@ public class RPCClientManager {
     final private int port = 8080;
     private Map<String,Object> name2Proxy;
     private RPCClient rpcClient;
+    private ConcurrentHashMap<String,RPCRecord> resultMap;
 
 
     private RPCClientManager(){
         name2Proxy = new HashMap<String, Object>();
         rpcClient = new RPCClient();
         rpcClient.connect(host, port);
+        resultMap = new ConcurrentHashMap<String, RPCRecord>();
     }
 
-    public void add(RPCInterfaceConfigBuilder builder) throws Exception{
+    public RPCClientManager add(RPCInterfaceConfigBuilder builder) throws Exception{
         if("".equals(builder.getName())){
-            throw new RPCClientException("the name of interface can not be empty");
+            throw new RPCException("the name of interface can not be empty");
         }
         if("".equals(builder.getVersion())){
-            throw new RPCClientException("the version can not be null");
+            throw new RPCException("the version can not be null");
         }
         if(builder.getInterface() == null){
-            throw new RPCClientException("the interface can not be null");
+            throw new RPCException("the interface can not be null");
         }
         Object object = Proxy.newProxyInstance(
                 builder.getInterface().getClassLoader(),
@@ -45,11 +50,12 @@ public class RPCClientManager {
                 new RPCClientProxyHandler(
                         this.rpcClient,
                         builder.getInterface().getName(),
-                        builder.getVersion()
+                        builder.getVersion(),
+                        this.resultMap
                 )
         );
-
         name2Proxy.put(builder.getName(),object);
+        return this;
     }
 
     public Object get(String name){

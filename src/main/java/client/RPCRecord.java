@@ -1,13 +1,16 @@
 package client;
 
+import common.RPCResponseMessage;
+
 /**
  * Created by Greeting on 2017/3/27.
  */
 public class RPCRecord {
 
     private String id;
-    private Integer time;
-    private Object result;
+    private Long time;
+    private RPCResponseMessage rpcResponseMessage;
+    private Object ready;
 
     public String getId() {
         return id;
@@ -17,19 +20,27 @@ public class RPCRecord {
         this.id = id;
     }
 
-    public Integer getTime() {
+    public Long getTime() {
         return time;
     }
 
-    public void setTime(Integer time) {
+    public void setTime(Long time) {
         this.time = time;
     }
 
-    public Object getResult() {
-        return result;
+    public RPCResponseMessage getRpcResponseMessage() {
+        return rpcResponseMessage;
     }
 
-    public void setResult(Object result) {
-        this.result = result;
+    public void setRpcResponseMessage(RPCResponseMessage rpcResponseMessage) {
+        this.rpcResponseMessage = rpcResponseMessage;
+    }
+
+    public Object getReady() {
+        return ready;
+    }
+
+    public void setReady(Object ready) {
+        this.ready = ready;
     }
 }

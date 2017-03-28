@@ -13,21 +13,37 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Created by Greeting on 2017/3/27.
  */
 public class RPCClient{
     private RPCRealClient rpcRealClient;
+    private ConcurrentHashMap<String,RPCRecord> resultMap;
     public RPCClient() {
+        resultMap = new ConcurrentHashMap<String, RPCRecord>();
     }
     public void connect(String host,int port) {
-        this.rpcRealClient = new RPCRealClient(host,port);
+        this.rpcRealClient = new RPCRealClient(host,port,resultMap);
         Thread thread = new Thread(rpcRealClient);
         thread.start();
         rpcRealClient.waitReady();
     }
-    public void sendMessage(Object message) {
-        rpcRealClient.sendMessage(message);
+
+
+    public RPCResponseMessage remoteInvoke(String interfaceName, String version, Method method,Object[] args) throws Exception{
+        String uuid = rpcRealClient.remoteInvoke(interfaceName, version, method, args);
+        RPCRecord record = resultMap.get(uuid);
+        record.getReady().wait();
+        RPCResponseMessage responseMessage = record.getRpcResponseMessage();
+        resultMap.remove(uuid);
+        return responseMessage;
     }
 }
 
@@ -37,14 +53,15 @@ class RPCRealClient implements Runnable{
     private RPCEncoder rpcEncoder;
     private RPCDecoder rpcDecoder;
     private RPCClientHandler rpcClientHandler;
+    private ConcurrentHashMap<String,RPCRecord> resultMap;
     private Object ready;
 
-    public RPCRealClient(String host,int port){
+    public RPCRealClient(String host,int port,ConcurrentHashMap<String,RPCRecord> resultMap){
         this.host = host;
         this.port = port;
         rpcEncoder = new RPCEncoder(RPCRequestMessage.class);
         rpcDecoder = new RPCDecoder(RPCResponseMessage.class);
-        rpcClientHandler = new RPCClientHandler();
+        rpcClientHandler = new RPCClientHandler(resultMap);
     }
 
     public void run() {
@@ -84,7 +101,7 @@ class RPCRealClient implements Runnable{
         }
     }
 
-    public void sendMessage(Object message){
-        this.rpcClientHandler.sendMessage(message);
+    public String remoteInvoke(String interfaceName, String version, Method method,Object[] args){
+        return this.rpcClientHandler.remoteInvoke(interfaceName, version, method, args);
     }
 }
