@@ -1,4 +1,5 @@
 package client;
+import java.lang.reflect.Proxy;
 import java.util.*;
 /**
  * Created by Greeting on 2017/3/27.
@@ -18,24 +19,41 @@ public class RPCClientManager {
 
     final private String host = "127.0.0.1";
     final private int port = 8080;
-    private Map<String,RPCClientProxy> name2Proxy;
+    private Map<String,Object> name2Proxy;
     private RPCClient rpcClient;
+
+
     private RPCClientManager(){
-        name2Proxy = new HashMap<String, RPCClientProxy>();
+        name2Proxy = new HashMap<String, Object>();
         rpcClient = new RPCClient();
-        try {
-            rpcClient.connect(host, port);
-        }catch(Exception e){
-            System.out.println("client can not connect to the server successfully");
-        }
+        rpcClient.connect(host, port);
     }
 
-    public void add(RPCInterfaceConfigBuilder builder){
+    public void add(RPCInterfaceConfigBuilder builder) throws Exception{
+        if("".equals(builder.getName())){
+            throw new RPCClientException("the name of interface can not be empty");
+        }
+        if("".equals(builder.getVersion())){
+            throw new RPCClientException("the version can not be null");
+        }
+        if(builder.getInterface() == null){
+            throw new RPCClientException("the interface can not be null");
+        }
+        Object object = Proxy.newProxyInstance(
+                builder.getInterface().getClassLoader(),
+                new Class[]{builder.getInterface()},
+                new RPCClientProxyHandler(
+                        this.rpcClient,
+                        builder.getInterface().getName(),
+                        builder.getVersion()
+                )
+        );
 
+        name2Proxy.put(builder.getName(),object);
     }
 
     public Object get(String name){
-        return null;
+        return name2Proxy.get(name);
     }
 
 
