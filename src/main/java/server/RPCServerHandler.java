@@ -1,6 +1,5 @@
 package server;
 
-import client.RPCInterfaceConfig;
 import common.RPCRequestMessage;
 import common.RPCResponseMessage;
 import io.netty.channel.ChannelHandlerContext;

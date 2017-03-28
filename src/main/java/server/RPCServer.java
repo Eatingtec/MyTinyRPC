@@ -1,4 +1,4 @@
-package client;
+package server;
 
 import common.RPCDecoder;
 import common.RPCEncoder;
@@ -12,11 +12,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import server.RPCServerHandler;
-import server.RPCServerManager;
-
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
  * Created by Greeting on 2017/3/27.
  */
